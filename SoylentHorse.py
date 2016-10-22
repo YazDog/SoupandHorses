@@ -31,7 +31,7 @@ def flucsIsolate(horse):
 
 
 
-# graphs from yasin's race object, more work is needed to graph from tim's
+# graphs from tims race object, more work is needed to graph from derivatives
 # more work is needed in general
 def grapher(race):
 
@@ -60,6 +60,7 @@ def grapher(race):
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
               ncol=3, fancybox=True, shadow=True, prop=fontP)
 
+
     plt.show()
 
 
@@ -87,6 +88,23 @@ class Race(object):
         self.goodhorses = {}
 
 
+    def derive(self):
+        for horse in race:
+            name = horse['name']
+            if not json.loads(horse['flux']):
+                continue
+            else:  # horse has flucs, is not scratched
+                flucs, flucsmag = flucsIsolate(horse)
+
+            f = flucs
+            m = flucsmag
+            FluxDir = [f[1] - f[0], f[2] - f[1], f[3] - f[2], f[4] - f[3], f[5] - f[4], f[6] - f[5]]
+            MagsDir = [m[1] - m[0], m[2] - m[1], m[3] - m[2], m[4] - m[3], m[5] - m[4], m[6] - m[5]]
+
+            horse['flux derivative'] = json.dumps(FluxDir)
+            horse['mags derivative'] = json.dumps(MagsDir)
+
+
     def simpleInv(self):
         print('doing simpleInv')
         for horse in race:
@@ -104,8 +122,7 @@ class Race(object):
 
 
     def drvInv(self): # not done yet
-        print('doing drvInv')
-        xdir = numpy.linspace(0, 6, 6)
+
         for horse in race:
             name = horse['name']
             if not json.loads(horse['flux']):
@@ -116,15 +133,8 @@ class Race(object):
             f = flucsmag
             FMD = numpy.array([f[1]-f[0], f[2]-f[1], f[3]-f[2], f[4]-f[3], f[5]-f[4], f[6]-f[5]])
 
-            plt.plot(xdir, FMD, label= horse['name'])
             if FMD[5] < 0:
                 self.goodhorses[name] = {'odds': [horse['win'], horse['place']]}
-
-        fontP = FontProperties()
-        fontP.set_size('small')
-        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
-                   ncol=3, fancybox=True, shadow=True, prop=fontP)
-        plt.show()
 
         return self.goodhorses
 
@@ -165,7 +175,7 @@ class Race(object):
         pass
 
 #print(race)
-#print(simpleInve(race))
+#print(simpleInv(race))
 #drvInv(race)
 
 
